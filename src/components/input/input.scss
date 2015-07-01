@@ -112,7 +112,7 @@ md-input-container {
   }
 
   &:not( .md-input-has-value ) input:not( :focus ) {
-    color: transparent;
+    color: inherit;
   }
 
 
