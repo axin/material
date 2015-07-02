@@ -92,6 +92,37 @@ describe('<md-virtual-repeat>', function() {
     expect(sizer[0].offsetWidth).toBe(NUM_ITEMS * ITEM_SIZE);
   });
 
+  it('should render only enough items to fill the viewport + 3 (vertical, no md-item-size)',
+      function() {
+    repeater.removeAttr('md-item-size');
+    createRepeater();
+    $$rAF.flush();
+    scope.items = createItems(NUM_ITEMS);
+    scope.$apply();
+    $$rAF.flush();
+
+    var numItemRenderers = VERTICAL_PX / ITEM_SIZE + VirtualRepeatController.NUM_EXTRA;
+
+    expect(getRepeated().length).toBe(numItemRenderers);
+    expect(sizer[0].offsetHeight).toBe(NUM_ITEMS * ITEM_SIZE);
+  });
+
+  it('should render only enough items to fill the viewport + 3 (horizontal, no md-item-size)',
+      function() {
+    container.attr('md-orient-horizontal', '');
+    repeater.removeAttr('md-item-size');
+    createRepeater();
+    $$rAF.flush();
+    scope.items = createItems(NUM_ITEMS);
+    scope.$apply();
+    $$rAF.flush();
+
+    var numItemRenderers = HORIZONTAL_PX / ITEM_SIZE + VirtualRepeatController.NUM_EXTRA;
+
+    expect(getRepeated().length).toBe(numItemRenderers);
+    expect(sizer[0].offsetWidth).toBe(NUM_ITEMS * ITEM_SIZE);
+  });
+
   it('should reposition and swap items on scroll (vertical)', function() {
     createRepeater();
     scope.items = createItems(NUM_ITEMS);
@@ -259,6 +290,106 @@ describe('<md-virtual-repeat>', function() {
     $$rAF.flush();
 
     expect(scroller[0].scrollTop).toBe(10 * ITEM_SIZE);
+  });
+
+  it('should shrink the container when the number of items goes down (vertical)', function() {
+    container.attr('md-auto-shrink', '');
+    createRepeater();
+    scope.items = createItems(NUM_ITEMS);
+    scope.$apply();
+    $$rAF.flush();
+
+    expect(container[0].offsetHeight).toBe(100);
+
+    // With 5 items...
+    scope.items = createItems(5);
+    scope.$apply();
+    expect(container[0].offsetHeight).toBe(5 * ITEM_SIZE);
+
+    // With 0 items...
+    scope.items = [];
+    scope.$apply();
+    expect(container[0].offsetHeight).toBe(0);
+
+    // With lots of items again...
+    scope.items = createItems(NUM_ITEMS);
+    scope.$apply();
+    expect(container[0].offsetHeight).toBe(100);
+  });
+
+  it('should shrink the container when the number of items goes down (horizontal)', function() {
+    container.attr({
+      'md-auto-shrink': '',
+      'md-orient-horizontal': ''
+    });
+    createRepeater();
+    scope.items = createItems(NUM_ITEMS);
+    scope.$apply();
+    $$rAF.flush();
+
+    expect(container[0].offsetWidth).toBe(150);
+
+    // With 5 items...
+    scope.items = createItems(5);
+    scope.$apply();
+    expect(container[0].offsetWidth).toBe(5 * ITEM_SIZE);
+
+    // With 0 items...
+    scope.items = [];
+    scope.$apply();
+    expect(container[0].offsetWidth).toBe(0);
+
+    // With lots of items again...
+    scope.items = createItems(NUM_ITEMS);
+    scope.$apply();
+    expect(container[0].offsetWidth).toBe(150);
+  });
+
+  it('should not shrink below the specified md-auto-shrink-min (vertical)', function() {
+    container.attr({
+      'md-auto-shrink': '',
+      'md-auto-shrink-min': '2'
+    });
+    createRepeater();
+    scope.items = createItems(NUM_ITEMS);
+    scope.$apply();
+    $$rAF.flush();
+
+    expect(container[0].offsetHeight).toBe(100);
+
+    // With 5 items...
+    scope.items = createItems(5);
+    scope.$apply();
+    expect(container[0].offsetHeight).toBe(5 * ITEM_SIZE);
+
+    // With 0 items...
+    scope.items = [];
+    scope.$apply();
+    expect(container[0].offsetHeight).toBe(2 * ITEM_SIZE);
+  });
+
+  it('should not shrink below the specified md-auto-shrink-min (horizontal)', function() {
+    container.attr({
+      'md-auto-shrink': '',
+      'md-auto-shrink-min': '2',
+      'md-orient-horizontal': ''
+    });
+    createRepeater();
+    scope.items = createItems(NUM_ITEMS);
+    scope.$apply();
+    $$rAF.flush();
+
+    expect(container[0].offsetWidth).toBe(150);
+
+    // With 5 items...
+    scope.items = createItems(5);
+    scope.$apply();
+    expect(container[0].offsetWidth).toBe(5 * ITEM_SIZE);
+
+    // With 0 items...
+    scope.items = [];
+    scope.$apply();
+    expect(container[0].offsetWidth).toBe(2 * ITEM_SIZE);
   });
 
   /**
